@@ -11,14 +11,7 @@ app.init = function() {
     contentType: 'application/json',
     success: function (data) {
       console.log('chatterbox: Message posted', data);
-      var index = 0;
-      while (index < data.results.length) {
-        var message = data.results[index].text;
-        var $message = $('<div></div>');
-        $message.text(data.results[index].username + ': ' + message);
-        $('#chats').append($message);
-        index++;
-      }
+      app.getChatterbox(data);
     },
     error: function (data) {
       // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -27,7 +20,6 @@ app.init = function() {
 
   });
 };
-
 
 app.send = function(message) {
   $.ajax({
@@ -54,15 +46,7 @@ app.fetch = function () {
     contentType: 'application/json',
     success: function (data) {
       console.log('chatterbox: Message posted', data);
-      var index = 0;
-      $('#chats').text('');
-      while (index < data.results.length) {
-        var message = data.results[index].text;
-        var $message = $('<div></div>');
-        $message.text(data.results[index].username + ': ' + message);
-        $('#chats').append($message);
-        index++;
-      }
+      app.getChatterbox(data);
     },
     error: function (data) {
     // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
@@ -79,7 +63,32 @@ app.clearMessages = function() {
 app.renderMessage = function (message) {
   var $message = $('<div></div>');
   $message.text(message);
-  $('#chats').append($message);
+  $('#chats').prepend($message);
+};
+
+app.renderRoom = function (room) {
+  var $room = $('<option></option>');
+  $room.text(room);
+  $('#roomSelect').append($room);
+};
+
+app.getChatterbox = function (data) {
+  var index = 0;
+  var roomObj = {};
+  app.clearMessages();
+  $('#roomSelect').html('<option value="allRooms">All Rooms</option>');
+  while (index < data.results.length) {
+    var message = data.results[index].text;
+    var $message = $('<div></div>');
+    var roomName = data.results[index].roomname;
+    $message.text(data.results[index].username + ': ' + message);
+    $('#chats').append($message);
+    roomObj[roomName] = roomName;
+    index++;
+  }
+  for (var key in roomObj) {
+    app.renderRoom(roomObj[key]);
+  }
 };
 
 $(document).ready(function() {
@@ -92,7 +101,8 @@ $(document).ready(function() {
       roomname: escape(prompt('What room would you like to post to?'))
     };
     app.send(message);
-    app.renderMessage(message);
+    app.renderMessage(message.username + ': ' + message.text);
+    app.renderRoom(message.roomname);
   });
 
   $('.refreshMessages').on('click', app.fetch);
@@ -100,4 +110,5 @@ $(document).ready(function() {
   $('.clearChat').on('click', app.clearMessages);
 
 });
+
 
