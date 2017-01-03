@@ -4,7 +4,6 @@ window.app = {};
 app.server = 'https://api.parse.com/1/classes/messages';
 
 app.init = function() {
-
   $.ajax({
     // This is the url you should use to communicate with the parse API server.
     url: app.server,
@@ -31,7 +30,6 @@ app.init = function() {
 
 
 app.send = function(message) {
-
   $.ajax({
     // This is the url you should use to communicate with the parse API server.
     url: app.server,
@@ -74,8 +72,17 @@ app.fetch = function () {
   });
 };
 
-$(document).ready(function() {
+app.clearMessages = function() {
+  $('#chats').text('');
+};
 
+app.renderMessage = function (message) {
+  var $message = $('<div></div>');
+  $message.text(message);
+  $('#chats').append($message);
+};
+
+$(document).ready(function() {
   app.init();
 
   $('.newMessage').on('click', function() {
@@ -85,11 +92,12 @@ $(document).ready(function() {
       roomname: escape(prompt('What room would you like to post to?'))
     };
     app.send(message);
+    app.renderMessage(message);
   });
 
-  $('.refreshMessages').on('click', function () {
-    app.fetch();
-  });
+  $('.refreshMessages').on('click', app.fetch);
+
+  $('.clearChat').on('click', app.clearMessages);
 
 });
 
