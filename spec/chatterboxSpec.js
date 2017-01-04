@@ -100,13 +100,13 @@ describe('chatterbox', function() {
 
         app.renderMessage({
           username: 'Mel Brooks',
-          text: 'I didn\'t get a harumph outa that guy.!',
+          text: 'I didn\'t get a harumph outa that guy!',
           roomname: 'lobby'
         });
 
         app.init();
 
-        $('#main').find('.username').trigger('click');
+        $('#chats').find('.username').trigger('click');
         expect(app.handleUsernameClick.called).to.be.true;
 
         app.handleUsernameClick.restore();

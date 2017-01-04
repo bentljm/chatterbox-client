@@ -19,6 +19,7 @@ app.init = function() {
     }
 
   });
+
 };
 
 app.send = function(message) {
@@ -78,11 +79,11 @@ app.getChatterbox = function (data) {
   app.clearMessages();
   $('#roomSelect').html('<option value="allRooms">All Rooms</option>');
   while (index < data.results.length) {
-    var message = data.results[index].text;
-    var $message = $('<div></div>');
-    var roomName = data.results[index].roomname;
-    $message.text(data.results[index].username + ': ' + message);
+    var $userName = $('<div class="username"></div>').text(data.results[index].username);
+    var $message = $('<div></div>').text(data.results[index].text);
+    $('#chats').append($userName);
     $('#chats').append($message);
+    var roomName = data.results[index].roomname;
     roomObj[roomName] = roomName;
     index++;
   }
@@ -120,6 +121,15 @@ app.getRoomData = function (room) {
 };
 
 //handleUserClick method here
+app.handleUsernameClick = function () {
+  var username = event.target.innerText;
+  console.log('hello');
+  $('.username').each(function() {
+    if (this.innerText === username) {
+      $(this).toggleClass('friend');
+    }
+  });
+};
 
 
 $(document).ready(function() {
@@ -144,8 +154,10 @@ $(document).ready(function() {
   $('.go').click(function() {
     var room = $('#roomSelect option:selected').text();
     app.getRoomData(room);
+
   });
 
+  $('#chats').click('.username', app.handleUsernameClick);
 
 });
 
