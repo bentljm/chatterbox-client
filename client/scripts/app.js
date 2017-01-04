@@ -67,7 +67,7 @@ app.renderMessage = function (message) {
 };
 
 app.renderRoom = function (room) {
-  var $room = $('<option></option>');
+  var $room = $('<option></option>').val(room);
   $room.text(room);
   $('#roomSelect').append($room);
 };
@@ -91,6 +91,37 @@ app.getChatterbox = function (data) {
   }
 };
 
+app.getRoomData = function (room) {
+  app.clearMessages();
+  $.ajax({
+  // This is the url you should use to communicate with the parse API server.
+    url: app.server,
+    type: 'GET',
+    contentType: 'application/json',
+    success: function (data) {
+      console.log('chatterbox: Message posted', data);
+      var index = 0;
+      while (index < data.results.length) {
+        if (data.results[index].roomname === room) {
+          var message = data.results[index].text;
+          var $message = $('<div></div>');
+          $message.text(data.results[index].username + ': ' + message);
+          $('#chats').append($message);
+        }
+        index++;
+      }
+    },
+    error: function (data) {
+    // See: https://developer.mozilla.org/en-US/docs/Web/API/console.error
+      console.error('chatterbox: Failed to post message', data);
+    }
+  });
+
+};
+
+//handleUserClick method here
+
+
 $(document).ready(function() {
   app.init();
 
@@ -106,9 +137,15 @@ $(document).ready(function() {
   });
 
   $('.refreshMessages').on('click', app.fetch);
+  //i think we need to also call app.renderRoom here so we can get the rooms from other users' message
 
   $('.clearChat').on('click', app.clearMessages);
 
-});
+  $('.go').click(function() {
+    var room = $('#roomSelect option:selected').text();
+    app.getRoomData(room);
+  });
 
+
+});
 
